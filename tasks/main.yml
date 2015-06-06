@@ -1,0 +1,26 @@
+---
+# install and configure byobu
+
+- name: create debconf file to setup byobu launch-by-default
+  sudo: yes
+  file: "dest=/tmp/byobu.conf owner=root group=root mode=0666 state=touch"
+  when: byobu_launch_by_default
+
+- name: add conf line to it
+  sudo: yes
+  lineinfile: "dest=/tmp/byobu.conf regexp='^byobu' line='byobu   byobu/launch-by-default boolean true'"
+  when: byobu_launch_by_default
+
+- name: run debconf for default options of byobu
+  sudo: yes
+  command: "/usr/bin/debconf-set-selections /tmp/byobu.conf"
+  when: byobu_launch_by_default
+
+- name: remove debconf file
+  sudo: yes
+  file: dest=/tmp/byobu.conf state=absent
+  when: byobu_launch_by_default
+
+- name: install byobu
+  sudo: yes
+  apt: name=byobu state=present
